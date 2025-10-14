@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(canvas2 VERSION 0.1 LANGUAGES CXX)
+set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
+set(PROJECT_VERSION 0.0.${PATCH_VERSION})
+
+project(editor VERSION ${PROJECT_VERSION})
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -19,12 +22,12 @@ set(PROJECT_SOURCES
     figure.cpp figure.h
 )
 
-add_executable(canvas2
+add_executable(editor
     ${PROJECT_SOURCES}
 )
 
-target_link_libraries(canvas2 PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_include_directories(canvas2 PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(editor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_include_directories(editor PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
