@@ -20,5 +20,4 @@ private:
     QColor color_;
 };
 
-
 #endif // CIRCLE_H
