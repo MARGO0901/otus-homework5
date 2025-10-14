@@ -25,3 +25,10 @@ add_executable(canvas2
 
 target_link_libraries(canvas2 PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(canvas2 PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+set(CPACK_GENERATOR DEB)
+set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+set(CPACK_PACKAGE_CONTACT example@example.com)
+include(CPack)
