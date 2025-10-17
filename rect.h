@@ -3,20 +3,17 @@
 
 #include "figure.h"
 
-#include <QRect>
-#include <QColor>
-#include <QPainter>
-
 class Rect : public Figure
 {
 public:
-    Rect(const QRect &rect, const QColor &color) : rect_(rect), color_(color) {};
-    void Draw(QPainter &painter) const override;
+    Rect(int x, int y, int h, int w, int c) : x_(x), y_(y), height_(h), width_(w), color_(c) {};
+    void Draw() const override;
     json toJson() const override;
 
 private:
-    QRect rect_;
-    QColor color_;
+    int x_, y_;
+    int height_, width_;
+    int color_;
 };
 
 #endif // RECT_H

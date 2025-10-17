@@ -1,29 +1,19 @@
 #include "rect.h"
 
-#include <QPainter>
-#include <iomanip>
+//#include <iomanip>
 
-void Rect::Draw(QPainter &painter) const {
-    painter.setBrush(color_);
-    painter.drawRect(rect_);
+void Rect::Draw() const {
+    std::cout << "Draw rect: x = " << x_ << " y = " << y_ << 
+                " height = " << height_ << " width = " << width_ << " color = " << color_ << std::endl;
 }
 
 json Rect::toJson() const {
-    std::ostringstream col;
-    // Получение цвета RGB
-    unsigned r = color_.red();
-    unsigned g = color_.green();
-    unsigned b = color_.blue();
-    col << "#" << std::hex << std::uppercase << std::setfill('0')
-        << std::setw(2) << r
-        << std::setw(2) << g
-        << std::setw(2) << b;
     return json{
         {"type", "rect"},
-        {"x", rect_.x()},
-        {"y", rect_.y()},
-        {"w", rect_.width()},
-        {"h", rect_.height()},
-        {"c", col.str()}
+        {"x", x_},
+        {"y", y_},
+        {"h", height_},
+        {"w", width_},
+        {"c", color_}
     };
 }

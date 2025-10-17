@@ -8,19 +8,17 @@ std::unique_ptr<Figure> Figure::fromJson(const json &obj) {
     if (type == "rect") {
         int x = obj["x"].get<int>();
         int y = obj["y"].get<int>();
-        int w = obj["w"].get<int>();
         int h = obj["h"].get<int>();
-        std::string c_str = obj["c"].get<std::string>();
-        QColor c(c_str.c_str());
-        return std::unique_ptr<Figure>(new Rect(QRect(x, y, w, h), c));
+        int w = obj["w"].get<int>();
+        int c = obj["c"].get<int>();
+        return std::unique_ptr<Figure>(new Rect(x, y, h, w, c));
     }
     else if (type == "circle") {
-        int cx = obj["cx"].get<int>();
-        int cy = obj["cy"].get<int>();
+        int x = obj["cx"].get<int>();
+        int y = obj["cy"].get<int>();
         int r = obj["r"].get<int>();
-        std::string c_str = obj["c"].get<std::string>();
-        QColor c(c_str.c_str());
-        return std::unique_ptr<Figure>(new Circle(QPoint(cx, cy), r, c));
+        int c = obj["c"].get<int>();
+        return std::unique_ptr<Figure>(new Circle(x, y, r, c));
     }
     return nullptr;
 }

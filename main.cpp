@@ -1,65 +1,60 @@
-#include <QApplication>
-#include <QObject>
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <memory.h>
+
 #include <fstream>
 #include <iostream>
+#include <memory>
+#include <vector>
 
 #include "figure.h"
-#include "circle.h"
 #include "rect.h"
+#include "circle.h"
 
-class Canvas : public QWidget {
-    Q_OBJECT
+class Canvas {
 public:
-    // Добавить фигуру
     void AddFigure(std::unique_ptr<Figure> fig) {
         figures.push_back(std::move(fig));
-        update();
+        Update();
     }
-    // Удалить последний
     void RemoveLastFigure() {
-        if (!figures.empty()) {
-            figures.pop_back();
-            update();
-        }
+      if (!figures.empty()) {
+        figures.pop_back();
+        Update();
+      }
     }
-    //Сохранить в файл
+    // Сохранить в файл
     bool SaveToFile(const std::string &filename) {
-        json jsonArray = json::array();
-        for (auto &fig : figures) {
-            jsonArray.push_back(fig->toJson());
-        }
+      json jsonArray = json::array();
+      for (auto &fig : figures) {
+        jsonArray.push_back(fig->toJson());
+      }
 
-        json rootObj;
-        rootObj["figures"] = jsonArray;
+      json rootObj;
+      rootObj["figures"] = jsonArray;
 
-        std::ofstream file(filename);
-        if (!file.is_open()) {
-            return false;
-        }
-        try {
-            file << rootObj.dump(4);    //отступ для читаемости
-        } catch (const std::exception &e) {
-            std::cerr << "Exception while parsing JSON: " << e.what() << std::endl;
-            return false;
-        }
-        file.close();
-        return true;
+      std::ofstream file(filename);
+      if (!file.is_open()) {
+        return false;
+      }
+      try {
+        file << rootObj.dump(4); // отступ для читаемости
+      } catch (const std::exception &e) {
+        std::cerr << "Exception while parsing JSON: " << e.what() << std::endl;
+        return false;
+      }
+      file.close();
+      return true;
     }
-    //Выгрузить из файла
-    bool loadFromFile(const std::string &fileName) {
+    // Выгрузить из файла
+    bool LoadFromFile(const std::string &fileName) {
         std::ifstream file(fileName);
-        if (!file.is_open())
+        if (!file.is_open()) {
+            std::cout << "File is not found" << std::endl;
             return false;
+        }
 
         json rootObj;
         try {
             file >> rootObj;
-        }
-        catch (const std::exception &e) {
+        } catch (const std::exception &e) {
             return false;
         }
 
@@ -71,96 +66,78 @@ public:
 
         for (const auto val : rootObj["figures"]) {
             if (val.is_object()) {
-                auto fig = Figure::fromJson(val);
-                if (fig)
-                    figures.push_back(std::move(fig));
+            auto fig = Figure::fromJson(val);
+            if (fig)
+                figures.push_back(std::move(fig));
             }
         }
-
-        update();
+        Update();
         return true;
     }
-    //Создать новый
+    // Создать новый
     void CreateNew() {
         figures.clear();
         count = 0;
 
-        QPainter painter(this);
-        painter.fillRect(rect(), Qt::white);
-
-        update();
+        Update();
     }
-
+    //счетчик фигур, чтобы изменять координаты новой
     int count = 0;
-
 protected:
-    void paintEvent(QPaintEvent*) override {
-        QPainter painter(this);
-        painter.fillRect(rect(), Qt::white);
-
-        for (const auto& fig : figures) {
-            fig->Draw(painter);
-        }
+    void Update() {
+      for (const auto &fig : figures) {
+        fig->Draw();
+      }
     }
-
-private:
+private: 
     std::vector<std::unique_ptr<Figure>> figures;
-
 };
 
 
-
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-
-    QWidget window;
-    window.setWindowTitle("Графический редактор");
-    QVBoxLayout* layout = new QVBoxLayout(&window);
-
-    QPushButton* saveJSON= new QPushButton("Сохранить", &window);
-    QPushButton* openJSON= new QPushButton("Открыть", &window);
-    QPushButton* createNew= new QPushButton("Создать новый", &window);
-    layout->addWidget(createNew);
-    layout->addWidget(openJSON);
-    layout->addWidget(saveJSON);
-
-
-
-    Canvas* canvas = new Canvas;
-    canvas->setFixedSize(500, 300);
-    layout->addWidget(canvas);
-
-    QPushButton* addRect = new QPushButton("Добавить прямоугольник", &window);
-    QPushButton* addCircle = new QPushButton("Добавить круг", &window);
-    QPushButton* deleteFigure = new QPushButton("Удалить последний", &window);
-
-    layout->addWidget(addRect);
-    layout->addWidget(addCircle);
-    layout->addWidget(deleteFigure);
-
-
-    // Соединяем сигналы кнопок с нашими слотами
-    QObject::connect(addRect, &QPushButton::clicked, [canvas]() {
-        QRect rect(10 + canvas->count * 20, 10 + canvas->count * 15, 100, 50);
-        canvas->AddFigure(std::unique_ptr<Figure>(std::make_unique<Rect>(rect, Qt::red).release()));
-        canvas->count++;
-    });
-
-    QObject::connect(addCircle, &QPushButton::clicked, [canvas]() {
-        canvas->AddFigure(std::unique_ptr<Figure>(std::make_unique<Circle>(QPoint(200 + canvas->count*20, 150 + canvas->count*20), 40, Qt::blue).release()));
-        canvas->count++;
-    });
-    QObject::connect(deleteFigure, &QPushButton::clicked, [canvas]() {canvas->RemoveLastFigure();});
-
-    QObject::connect(saveJSON, &QPushButton::clicked, [canvas]() {canvas->SaveToFile("figures.json");});
-    QObject::connect(openJSON, &QPushButton::clicked, [canvas]() {canvas->loadFromFile("figures.json");});
-    QObject::connect(createNew, &QPushButton::clicked, [canvas]() {canvas->CreateNew();});
-
-
-    window.show();
-
-    return app.exec();
+void AddRect(Canvas &canvas) {
+    Rect rect(10 + canvas.count * 20, 10 + canvas.count * 15, 100, 50, 100);
+    canvas.AddFigure(std::unique_ptr<Figure>(
+        std::make_unique<Rect>(rect).release()));
+    canvas.count++;
 }
 
-#include "main.moc"
+
+void AddCircle(Canvas &canvas) {
+    Circle circle(200 + canvas.count * 20, 150 + canvas.count * 20, 40, 100);
+    canvas.AddFigure(
+        std::unique_ptr<Figure>(std::make_unique<Circle>(circle).release()));
+    canvas.count++;
+}
+
+
+int main()
+{
+    std::cout << __PRETTY_FUNCTION__ << " Graph editor started" << std::endl;
+
+    Canvas canvas;
+
+    std::cout << __PRETTY_FUNCTION__ << " Add rect:" << canvas.count + 1 << std::endl;
+    AddRect(canvas);
+    std::cout << __PRETTY_FUNCTION__ << " Add rect:" << canvas.count + 1 << std::endl;
+    AddRect(canvas);
+
+    std::cout << __PRETTY_FUNCTION__ << " Add circle:" << canvas.count + 1 << std::endl;
+    AddCircle(canvas);
+    std::cout << __PRETTY_FUNCTION__ << " Add circle:" << canvas.count + 1 << std::endl;
+    AddCircle(canvas);
+
+    std::cout << __PRETTY_FUNCTION__ << " Delete last figure:" << std::endl;
+    canvas.RemoveLastFigure();
+
+    std::cout << __PRETTY_FUNCTION__ << " Save to figures.json" << std::endl;
+    canvas.SaveToFile("figures.json");
+
+    std::cout << __PRETTY_FUNCTION__ << " Load from figures.json" << std::endl;
+    canvas.LoadFromFile("figures.json");
+
+    std::cout << __PRETTY_FUNCTION__ << " Create new canvas" << std::endl;
+    canvas.CreateNew();
+
+    return 0;
+}
+
