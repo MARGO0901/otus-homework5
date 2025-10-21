@@ -6,7 +6,7 @@ set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 project(editor VERSION ${PROJECT_VESRION})
 
 add_executable(editor
-  main.cpp rect.cpp circle.cpp figure.cpp
+  main.cpp model.cpp figure.cpp rect.cpp circle.cpp
 )
 
 set_target_properties(editor PROPERTIES

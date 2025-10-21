@@ -1,7 +1,5 @@
 #include "rect.h"
 
-//#include <iomanip>
-
 void Rect::Draw() const {
     std::cout << "Draw rect: x = " << x_ << " y = " << y_ << 
                 " height = " << height_ << " width = " << width_ << " color = " << color_ << std::endl;
